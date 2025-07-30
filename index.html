@@ -57,7 +57,20 @@ function generateOrderId() {
 
 function saveOrderToFirebase(orderId, orderData) {
     const db = getDatabase();
-    set(ref(db, 'orders/' + orderId), orderData)
+    
+    // Complete order object banao with id field
+    const completeOrder = {
+        id: orderId,
+        customer: orderData.customer,
+        items: orderData.items,
+        total: orderData.total,
+        paymentMethod: orderData.paymentMethod,
+        delivery: orderData.delivery,
+        date: Date.now(),
+        status: "Order Placed"
+    };
+    
+    set(ref(db, 'orders/' + orderId), completeOrder)
         .then(() => {
             console.log("Order saved to Firebase:", orderId);
         })

@@ -6,6 +6,29 @@
     <title>ShuddhMart Admin Panel</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <!-- Firebase SDK -->
+<script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+    import { getDatabase, ref, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    
+    const firebaseConfig = {
+        apiKey: "AIzaSyBvlkUoMDy0HHlORg_iGpfqm8awIZLhlG4",
+        authDomain: "shuddhmart.firebaseapp.com",
+        databaseURL: "https://shuddhmart-default-rtdb.firebaseio.com/",
+        projectId: "shuddhmart",
+        storageBucket: "shuddhmart.firebasestorage.app",
+        messagingSenderId: "899103384312",
+        appId: "1:899103384312:web:4a8c638ba63654993f110d"
+    };
+    
+    const app = initializeApp(firebaseConfig);
+    const database = getDatabase(app);
+    
+    window.database = database;
+    window.ref = ref;
+    window.onValue = onValue;
+    window.remove = remove;
+</script>
     <style>
         .admin-card {
             transition: all 0.3s ease;
@@ -161,10 +184,18 @@
 
         // Load orders from localStorage
         function loadOrders() {
-            orders = JSON.parse(localStorage.getItem('orders')) || [];
-            renderOrders();
-            updateStats();
+    const ordersRef = window.ref(window.database, 'orders');
+    
+    window.onValue(ordersRef, (snapshot) => {
+        orders = [];
+        if (snapshot.exists()) {
+            const data = snapshot.val();
+            orders = Object.values(data);
         }
+        renderOrders();
+        updateStats();
+    });
+}
 
         function renderOrders() {
             const tbody = document.getElementById('ordersTableBody');

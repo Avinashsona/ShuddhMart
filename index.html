@@ -57,14 +57,15 @@ function generateOrderId() {
 
 
 function saveOrderToFirebase(orderId, orderData) {
-    const db = getDatabase();
-    set(ref(db, 'orders/' + orderId), orderData)
-        .then(() => {
-            console.log("Order saved to Firebase:", orderId);
-        })
-        .catch((error) => {
-            console.error("Error saving order:", error);
-        });
+  const db = window.getDatabase();
+  set(ref(db, 'orders/' + orderId), orderData)
+    .then(() => {
+      console.log("Order saved to Firebase:", orderId);
+    })
+    .catch((error) => {
+      console.error("Error saving order:", error);
+      alert("Firebase Save Error: " + error.message);
+    });
 }
 
 

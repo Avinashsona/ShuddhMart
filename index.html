@@ -1255,7 +1255,9 @@ function closeTrackModal() {
         }
 
         function completeOrder(orderData) {
-            // Save order locally
+            const orderId = generateOrderId();
+orderData.id = orderId;
+saveOrderToFirebase(orderId, orderData);
             const orders = JSON.parse(localStorage.getItem('orders')) || [];
             orders.push(orderData);
             localStorage.setItem('orders', JSON.stringify(orders));

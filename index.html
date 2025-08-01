@@ -114,6 +114,73 @@ function closeTrackModal() {
     modal.classList.remove('flex');
 }
 
+// My Orders Functions
+function showMyOrders() {
+    const user = window.firebaseAuth.currentUser;
+    if (!user) {
+        alert("Please login first!");
+        return;
+    }
+    
+    const modal = document.getElementById('myOrdersModal');
+    modal.classList.remove('hidden');
+    modal.classList.add('flex');
+    
+    loadCustomerOrders(user.email);
+}
+
+function loadCustomerOrders(userEmail) {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, 'orders')).then((snapshot) => {
+        if (snapshot.exists()) {
+            const allOrders = snapshot.val();
+            const customerOrders = Object.values(allOrders).filter(order => 
+                order.customer.email === userEmail
+            );
+            displayCustomerOrders(customerOrders);
+        } else {
+            document.getElementById('myOrdersList').innerHTML = '<p class="text-gray-500">No orders found.</p>';
+        }
+    }).catch((error) => {
+        console.error("Error loading orders:", error);
+    });
+}
+
+function displayCustomerOrders(orders) {
+    const ordersList = document.getElementById('myOrdersList');
+    
+    if (orders.length === 0) {
+        ordersList.innerHTML = '<p class="text-gray-500">No orders found.</p>';
+        return;
+    }
+    
+    ordersList.innerHTML = orders.map(order => `
+        <div class="border rounded-lg p-4 mb-4 hover:shadow-md cursor-pointer" onclick="openOrderTracking('${order.id}')">
+            <div class="flex justify-between items-start">
+                <div>
+                    <h4 class="font-semibold text-lg">Order #${order.id}</h4>
+                    <p class="text-gray-600">Status: <span class="text-green-600 font-medium">${order.status || 'Ordered'}</span></p>
+                    <p class="text-gray-600">Items: ${order.items.length}</p>
+                    <p class="text-gray-600">Total: ₹${order.total}</p>
+                    <p class="text-gray-500 text-sm">Date: ${new Date(order.date).toLocaleDateString()}</p>
+                </div>
+                <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Track Order
+                </button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function openOrderTracking(orderId) {
+    window.open(`track.html?id=${orderId}`, '_blank');
+}
+
+function closeMyOrdersModal() {
+    const modal = document.getElementById('myOrdersModal');
+    modal.classList.add('hidden');
+    modal.classList.remove('flex');
+}
 </script>
     
     <!-- Custom CSS -->

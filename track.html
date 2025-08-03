@@ -7,41 +7,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
-    <!-- Firebase SDK -->
-    <script type="module">
-        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-        import { getDatabase, ref, get, child } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
-        
-        const firebaseConfig = {
-            apiKey: "AIzaSyBvlkUoMDy0HHlORg_iGpfqm8awIZLhlG4",
-            authDomain: "shuddhmart.firebaseapp.com",
-            databaseURL: "https://shuddhmart-default-rtdb.firebaseio.com/",
-            projectId: "shuddhmart",
-            storageBucket: "shuddhmart.firebasestorage.app",
-            messagingSenderId: "899103384312",
-            appId: "1:899103384312:web:4a8c638ba63654993f110d"
-        };
-        
-        const app = initializeApp(firebaseConfig);
-        const database = getDatabase(app);
-        
-        window.getDatabase = () => database;
-        window.ref = ref;
-        window.get = get;
-        window.child = child;
-        window.loadOrderDetails = loadOrderDetails;
-window.displayOrderTracking = displayOrderTracking;
-window.showOrderNotFound = showOrderNotFound;
-window.showErrorState = showErrorState;
-    </script>
-    
     <style>
         .progress-step {
             transition: all 0.3s ease;
-        }
-        .progress-step.active {
-            background-color: #10b981;
-            color: white;
         }
         .progress-step.completed {
             background-color: #10b981;
@@ -86,41 +54,51 @@ window.showErrorState = showErrorState;
                 <div class="inline-block w-8 h-8 border-4 border-green-200 border-t-green-600 rounded-full animate-spin"></div>
                 <p class="text-gray-600 mt-4">Loading order details...</p>
             </div>
-            
-            <!-- Order Details will be populated here -->
         </div>
     </div>
 
-    <script>
+    <!-- Firebase और Main Script -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, get, child } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        
+        const firebaseConfig = {
+            apiKey: "AIzaSyBvlkUoMDy0HHlORg_iGpfqm8awIZLhlG4",
+            authDomain: "shuddhmart.firebaseapp.com",
+            databaseURL: "https://shuddhmart-default-rtdb.firebaseio.com/",
+            projectId: "shuddhmart",
+            storageBucket: "shuddhmart.firebasestorage.app",
+            messagingSenderId: "899103384312",
+            appId: "1:899103384312:web:4a8c638ba63654993f110d"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+
         // Get order ID from URL
         const urlParams = new URLSearchParams(window.location.search);
         const orderId = urlParams.get('id');
 
         if (!orderId) {
-            document.getElementById('trackingContent').innerHTML = `
-                <div class="text-center py-12">
-                    <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Order ID Missing</h2>
-                    <p class="text-gray-600">Please provide a valid order ID to track your order.</p>
-                </div>
-            `;
+            showError("Order ID Missing", "Please provide a valid order ID to track your order.");
         } else {
             loadOrderDetails(orderId);
         }
 
         async function loadOrderDetails(orderId) {
-            const dbRef = ref(getDatabase());
             try {
+                const dbRef = ref(database);
                 const snapshot = await get(child(dbRef, `orders/${orderId}`));
+                
                 if (snapshot.exists()) {
                     const order = snapshot.val();
                     displayOrderTracking(order);
                 } else {
-                    showOrderNotFound();
+                    showError("Order Not Found", `The order ID "${orderId}" could not be found in our system.`);
                 }
             } catch (error) {
                 console.error("Error loading order:", error);
-                showErrorState();
+                showError("Error Loading Order", "There was an error loading your order details. Please try again.");
             }
         }
 
@@ -163,9 +141,6 @@ window.showErrorState = showErrorState;
                                     <i class="${step.icon}"></i>
                                 </div>
                                 <p class="text-xs text-center ${index <= currentIndex ? 'text-green-600 font-medium' : 'text-gray-500'}">${step.label}</p>
-                                ${index < trackingSteps.length - 1 ? `
-                                    <div class="progress-line w-full mt-4 ${index < currentIndex ? 'completed' : ''}"></div>
-                                ` : ''}
                             </div>
                         `).join('')}
                     </div>
@@ -217,27 +192,14 @@ window.showErrorState = showErrorState;
                     </div>
                 </div>
             `;
-
-            // Hide loading state
-            document.getElementById('loadingState').style.display = 'none';
         }
 
-        function showOrderNotFound() {
-            document.getElementById('trackingContent').innerHTML = `
-                <div class="text-center py-12">
-                    <i class="fas fa-search text-gray-400 text-4xl mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Order Not Found</h2>
-                    <p class="text-gray-600">The order ID "${orderId}" could not be found in our system.</p>
-                </div>
-            `;
-        }
-
-        function showErrorState() {
+        function showError(title, message) {
             document.getElementById('trackingContent').innerHTML = `
                 <div class="text-center py-12">
                     <i class="fas fa-exclamation-triangle text-red-500 text-4xl mb-4"></i>
-                    <h2 class="text-2xl font-bold text-gray-800 mb-2">Error Loading Order</h2>
-                    <p class="text-gray-600">There was an error loading your order details. Please try again.</p>
+                    <h2 class="text-2xl font-bold text-gray-800 mb-2">${title}</h2>
+                    <p class="text-gray-600">${message}</p>
                 </div>
             `;
         }

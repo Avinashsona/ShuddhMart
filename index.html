@@ -1886,40 +1886,47 @@ function closeTrackModal() {
     </script>
 
 <!-- POLICIES SECTION - YE CODE REPLACE करें -->
+<!-- POLICIES SECTION -->
 <div class="bg-gray-100 py-8">
     <div class="container mx-auto px-4">
         <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-gray-800 mb-4">Our Policies</h2>
             <div class="max-w-md mx-auto">
                 <div class="mb-6">
-                    <h3 class="font-semibold text-gray-800 mb-3 cursor-pointer flex items-center justify-center" onclick="var content = document.getElementById('policiesContent'); var icon = document.getElementById('policiesIcon'); if(content.classList.contains('hidden')) { content.classList.remove('hidden'); icon.style.transform = 'rotate(180deg)'; } else { content.classList.add('hidden'); icon.style.transform = 'rotate(0deg)'; }">
+                    <h3 class="font-semibold text-gray-800 mb-3 cursor-pointer flex items-center justify-center"
+                         onclick="togglePolicies()">
                         <i class="fas fa-file-alt mr-2"></i>
                         Policies 
                         <i id="policiesIcon" class="fas fa-chevron-down ml-2 transition-transform duration-300"></i>
                     </h3>
-                  <div id="policiesContent" class="hidden space-y-3">
-    <div class="bg-white p-4 rounded-lg shadow">
-        <h4 class="font-semibold text-green-600 mb-2">
-            <i class="fas fa-shipping-fast mr-2"></i>Shipping Policy
-        </h4>
-        <p class="text-sm text-gray-600">Free delivery above ₹199. Standard delivery takes 1-2 business days within city limits.</p>
-    </div>
-    <div class="bg-white p-4 rounded-lg shadow">
-        <h4 class="font-semibold text-green-600 mb-2">
-            <i class="fas fa-undo mr-2"></i>Returns & Refund Policy
-        </h4>
-        <p class="text-sm text-gray-600">Easy returns within 7 days for fresh products. Full refund guaranteed for damaged items.</p>
-    </div>
-    <div class="bg-white p-4 rounded-lg shadow">
-        <h4 class="font-semibold text-green-600 mb-2">
-            <i class="fas fa-scroll mr-2"></i>Terms & Conditions
-        </h4>
-        <p class="text-sm text-gray-600">By using ShuddhMart, you agree to our terms of service and delivery policies.</p>
-    </div>
-    <div class="bg-white p-4 rounded-lg shadow">
-        <h4 class="font-semibold text-green-600 mb-2">
-            <i class="fas fa-user-shield mr-2"></i>Privacy Policy
-        </h4>
-        <p class="text-sm text-gray-600">Your personal information is secure with us. We don't share data with third parties.</p>
+                    <div id="policiesContent" class="hidden space-y-3">
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-semibold text-green-600 mb-2">
+                                <i class="fas fa-shipping-fast mr-2"></i>Shipping Policy
+                            </h4>
+                            <p class="text-sm text-gray-600">Free delivery above ₹199. Standard delivery takes 1-2 business days within city limits.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-semibold text-green-600 mb-2">
+                                <i class="fas fa-undo mr-2"></i>Returns & Refund Policy
+                            </h4>
+                            <p class="text-sm text-gray-600">Easy returns within 7 days for fresh products. Full refund guaranteed for damaged items.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-semibold text-green-600 mb-2">
+                                <i class="fas fa-scroll mr-2"></i>Terms & Conditions
+                            </h4>
+                            <p class="text-sm text-gray-600">By using ShuddhMart, you agree to our terms of service and delivery policies.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow">
+                            <h4 class="font-semibold text-green-600 mb-2">
+                                <i class="fas fa-user-shield mr-2"></i>Privacy Policy
+                            </h4>
+                            <p class="text-sm text-gray-600">Your personal information is secure with us. We don't share data with third parties.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

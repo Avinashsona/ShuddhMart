@@ -1930,3 +1930,20 @@ function closeTrackModal() {
         </div>
     </div>
 </div>
+<script>
+function togglePolicies() {
+    const content = document.getElementById('policiesContent');
+    const icon = document.getElementById('policiesIcon');
+
+    if (content.classList.contains('hidden')) {
+        content.classList.remove('hidden');
+        icon.style.transform = 'rotate(180deg)';
+    } else {
+        content.classList.add('hidden');
+        icon.style.transform = 'rotate(0deg)';
+    }
+}
+</script>
+
+</body>
+</html>

@@ -1905,3 +1905,22 @@ function closeTrackModal() {
     </div>
 </div>
     </script>          
+</div>
+
+<script>
+// Mobile Menu Toggle Function
+function toggleMobileMenu() {
+    const mobileMenu = document.getElementById('mobileMenu');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    
+    if (mobileMenu.classList.contains('hidden')) {
+        mobileMenu.classList.remove('hidden');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+    } else {
+        mobileMenu.classList.add('hidden');
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+    }
+}
+</script>
+</body>
+</html>

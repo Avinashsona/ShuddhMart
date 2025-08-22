@@ -1915,14 +1915,23 @@ function closeTrackModal() {
 // Mobile Menu Toggle Function
 function toggleMobileMenu() {
     const mobileMenu = document.getElementById('mobileMenu');
+    const mobileAuthButtons = document.getElementById('mobileAuthButtons');
+    const userMenu = document.getElementById('userMenu');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
     
     if (mobileMenu.classList.contains('hidden')) {
         mobileMenu.classList.remove('hidden');
-        mobileMenuBtn.innerHTML = '<i class="fas fa-times text-xl"></i>';
+        mobileMenuBtn.innerHTML = '<i class="fas fa-times text-base"></i>';
+        
+        // Show auth buttons if user is not logged in
+        if (userMenu.classList.contains('hidden')) {
+            mobileAuthButtons.classList.remove('hidden');
+        } else {
+            mobileAuthButtons.classList.add('hidden');
+        }
     } else {
         mobileMenu.classList.add('hidden');
-        mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-xl"></i>';
+        mobileMenuBtn.innerHTML = '<i class="fas fa-bars text-base"></i>';
     }
 }
 </script>

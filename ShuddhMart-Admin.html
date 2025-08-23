@@ -76,6 +76,23 @@
     </style>
 </head>
 <body class="bg-gray-100">
+    <!-- Admin Login Modal -->
+<div id="adminLoginModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-xl p-8 max-w-md w-full mx-4">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6 text-center">Admin Login</h2>
+        
+        <input type="email" id="adminEmail" placeholder="Admin Email" 
+               class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+        
+        <input type="password" id="adminPassword" placeholder="Admin Password" 
+               class="w-full p-3 mb-4 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+        
+        <button onclick="adminLogin()" 
+                class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition-colors font-semibold">
+            Login as Admin
+        </button>
+    </div>
+</div>
     <!-- Header -->
     <header class="bg-white shadow-lg">
         <div class="container mx-auto px-4 py-4">

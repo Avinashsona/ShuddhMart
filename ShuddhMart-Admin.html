@@ -9,7 +9,7 @@
     <!-- Firebase Auth import करें -->
 <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-    import { getDatabase, ref, onValue, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+    import { getDatabase, ref, onValue, remove, update } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
     
     const firebaseConfig = {
@@ -64,6 +64,7 @@
     window.ref = ref;
     window.onValue = onValue;
     window.remove = remove;
+    window.update = update; // यह add किया status update के लिए
 </script>
     <style>
         .admin-card {
@@ -73,6 +74,17 @@
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(0,0,0,0.1);
         }
+        
+        /* Status dropdown styling */
+        .status-dropdown {
+            min-width: 140px;
+        }
+        .status-confirmed { color: #059669; background-color: #ecfdf5; }
+        .status-processing { color: #0891b2; background-color: #e0f2fe; }
+        .status-shipped { color: #7c3aed; background-color: #f3e8ff; }
+        .status-out-for-delivery { color: #ea580c; background-color: #fff7ed; }
+        .status-delivered { color: #16a34a; background-color: #f0fdf4; }
+        .status-cancelled { color: #dc2626; background-color: #fef2f2; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -93,6 +105,7 @@
         </button>
     </div>
 </div>
+
     <!-- Header -->
     <header class="bg-white shadow-lg">
         <div class="container mx-auto px-4 py-4">
@@ -237,6 +250,16 @@
         let orders = [];
         let orderKeys = []; // Firebase keys को store करने के लिए
 
+        // Status options with proper labels और colors
+        const statusOptions = [
+            { value: 'confirmed', label: 'Confirmed', class: 'status-confirmed' },
+            { value: 'processing', label: 'Processing', class: 'status-processing' },
+            { value: 'shipped', label: 'Shipped', class: 'status-shipped' },
+            { value: 'out-for-delivery', label: 'Out for Delivery', class: 'status-out-for-delivery' },
+            { value: 'delivered', label: 'Delivered', class: 'status-delivered' },
+            { value: 'cancelled', label: 'Cancelled', class: 'status-cancelled' }
+        ];
+
         // Load orders from Firebase
         function loadOrders() {
             const ordersRef = window.ref(window.database, 'orders');
@@ -270,7 +293,11 @@
 
             noOrders.classList.add('hidden');
             
-            tbody.innerHTML = orders.map((order, index) => `
+            tbody.innerHTML = orders.map((order, index) => {
+                const currentStatus = order.status || 'confirmed';
+                const statusOption = statusOptions.find(s => s.value === currentStatus) || statusOptions[0];
+                
+                return `
                 <tr class="hover:bg-gray-50">
                     <td class="px-6 py-4 whitespace-nowrap">
                         <div class="text-sm font-medium text-gray-900">${order.id}</div>
@@ -308,8 +335,15 @@
                         <br>
                         ${new Date(order.date).toLocaleTimeString()}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        Pending
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <select onchange="updateOrderStatus('${orderKeys[index]}', this.value)" 
+                                class="status-dropdown px-3 py-1 text-xs font-semibold rounded-full border-0 ${statusOption.class}">
+                            ${statusOptions.map(option => `
+                                <option value="${option.value}" ${option.value === currentStatus ? 'selected' : ''}>
+                                    ${option.label}
+                                </option>
+                            `).join('')}
+                        </select>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                         <button onclick="viewOrder(${index})" class="text-blue-600 hover:text-blue-900 mr-2">
@@ -320,7 +354,28 @@
                         </button>
                     </td>
                 </tr>
-            `).join('');
+            `;
+            }).join('');
+        }
+
+        // Status update function - यह main function है
+        function updateOrderStatus(orderKey, newStatus) {
+            const orderRef = window.ref(window.database, `orders/${orderKey}`);
+            
+            window.update(orderRef, { 
+                status: newStatus,
+                statusUpdatedAt: new Date().toISOString()
+            })
+            .then(() => {
+                showNotification(`Order status updated to ${newStatus}`, 'success');
+                console.log('Status updated successfully');
+            })
+            .catch((error) => {
+                console.error('Error updating status:', error);
+                showNotification('Error updating order status', 'error');
+                // Reload orders to revert the dropdown
+                loadOrders();
+            });
         }
 
         function updateStats() {
@@ -352,6 +407,9 @@
                 </div>
             `).join('');
 
+            const currentStatus = order.status || 'confirmed';
+            const statusOption = statusOptions.find(s => s.value === currentStatus) || statusOptions[0];
+
             details.innerHTML = `
                 <div class="space-y-4">
                     <div class="grid grid-cols-2 gap-4">
@@ -361,6 +419,7 @@
                             <p><strong>Date:</strong> ${new Date(order.date).toLocaleString()}</p>
                             <p><strong>Payment Method:</strong> ${order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
                             <p><strong>Payment ID:</strong> ${order.paymentId || 'N/A'}</p>
+                            <p><strong>Status:</strong> <span class="px-2 py-1 rounded-full text-xs font-semibold ${statusOption.class}">${statusOption.label}</span></p>
                         </div>
                         <div>
                             <h4 class="font-semibold text-gray-800">Customer Information</h4>
@@ -400,7 +459,7 @@
             modal.classList.remove('flex');
         }
 
-        // यहाँ है fixed delete function
+        // Delete order function - Firebase से delete करता है
         function deleteOrder(index) {
             if (confirm('Are you sure you want to delete this order?')) {
                 const orderKey = orderKeys[index]; // Firebase key
@@ -418,7 +477,7 @@
             }
         }
 
-        // यहाँ है fixed clearAllOrders function
+        // Clear all orders function - Firebase से सभी orders delete करता है
         function clearAllOrders() {
             if (confirm('Are you sure you want to clear all orders? This action cannot be undone.')) {
                 const ordersRef = window.ref(window.database, 'orders');
@@ -447,11 +506,13 @@
             }
 
             const csv = [
-                ['Order ID', 'Customer Name', 'Phone', 'Email', 'Items', 'Total', 'Payment Method', 'Address', 'Pincode', 'Special Instructions', 'Date']
+                ['Order ID', 'Customer Name', 'Phone', 'Email', 'Items', 'Total', 'Payment Method', 'Address', 'Pincode', 'Special Instructions', 'Status', 'Date']
             ];
 
             orders.forEach(order => {
                 const itemsList = order.items.map(item => `${item.product.name} x ${item.quantity}`).join('; ');
+                const statusOption = statusOptions.find(s => s.value === (order.status || 'confirmed')) || statusOptions[0];
+                
                 csv.push([
                     order.id,
                     order.customer.name,
@@ -463,6 +524,7 @@
                     order.delivery.address,
                     order.delivery.pincode,
                     order.delivery.notes || '',
+                    statusOption.label,
                     new Date(order.date).toLocaleString()
                 ]);
             });

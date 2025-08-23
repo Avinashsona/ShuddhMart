@@ -60,6 +60,8 @@ function generateOrderId() {
 
 function saveOrderToFirebase(orderId, orderData) {
   const db = window.getDatabase();
+    const user = window.firebaseAuth.currentUser;
+if (user) { orderData.customer.uid = user.uid; }
   set(ref(db, 'orders/' + orderId), orderData)
     .then(() => {
       console.log("Order saved to Firebase:", orderId);
